@@ -1,5 +1,6 @@
 #include "gtest/gtest.h"
 #include "TopologicalSort.h"
+#include "Parser.h"
 
 TEST(TopologicalSortTest, ShouldOrderIfNoConditions)
 {
@@ -152,4 +153,37 @@ TEST(TopologicalSortTest, ShouldNotOrderIfNoAnswer)
 	int* ordered = sorter.Sort(6, conditions);
 
 	ASSERT_TRUE(ordered == NULL);
+}
+
+TEST(ParserTest, ShouldReadInfoFromFile)
+{
+	FILE* input = fopen("Tests/in", "w");
+	fprintf(input, "%d %d\n", 6, 5);
+
+	fprintf(input, "%d %d\n", 3, 1);
+	fprintf(input, "%d %d\n", 4, 2);
+	fprintf(input, "%d %d\n", 2, 1);
+	fprintf(input, "%d %d\n", 0, 5);
+	fprintf(input, "%d %d\n", 0, 4);
+
+	fclose(input);
+
+	input = fopen("Tests/in", "r");
+	Parser parser;
+	Problem* problem = parser.ReadFromFile(input);
+
+	ASSERT_EQ(6, problem->count);
+	ASSERT_EQ(5, problem->conditions->GetCount());
+	ASSERT_EQ(3, problem->conditions->GetElement(0).first);
+	ASSERT_EQ(1, problem->conditions->GetElement(0).second);
+	ASSERT_EQ(4, problem->conditions->GetElement(1).first);
+	ASSERT_EQ(2, problem->conditions->GetElement(1).second);
+	ASSERT_EQ(2, problem->conditions->GetElement(2).first);
+	ASSERT_EQ(1, problem->conditions->GetElement(2).second);
+	ASSERT_EQ(0, problem->conditions->GetElement(3).first);
+	ASSERT_EQ(5, problem->conditions->GetElement(3).second);
+	ASSERT_EQ(0, problem->conditions->GetElement(4).first);
+	ASSERT_EQ(4, problem->conditions->GetElement(4).second);
+
+	fclose(input);
 }

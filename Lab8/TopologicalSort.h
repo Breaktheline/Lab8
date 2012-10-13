@@ -6,6 +6,12 @@
 
 struct Condition
 {
+	Condition()
+	{
+		first = 0;
+		second = 0;
+	}
+
 	Condition(int aFirst, int aSecond)
 	{
 		first = aFirst;
