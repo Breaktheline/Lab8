@@ -87,6 +87,11 @@ public:
 
 		T last = _elements[_count-1];
 		_count--;
+		if(_count == 0)
+		{
+			_elements = NULL;
+		}
+
 		return last;
 	}
 

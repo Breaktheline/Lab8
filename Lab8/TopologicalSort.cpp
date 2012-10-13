@@ -45,8 +45,8 @@ void TopologicalSort::FillLinksAndPrecursors( TList<Condition>* conditions )
 	for (int i = 0; i < conditionsCount; i++)
 	{
 		Condition condition = conditions->GetElement(i);
-		_links[condition.first]->Add(condition.second);
-		_precursors[condition.second]++;
+		_links[condition.first-1]->Add(condition.second);
+		_precursors[condition.second-1]++;
 	}
 }
 
@@ -58,7 +58,7 @@ void TopologicalSort::AddFirstCandidates()
 	{
 		if (_precursors[i] == 0)
 		{
-			_candidates->Push(i);
+			_candidates->Push(i+1);
 		}
 	}
 }
@@ -68,7 +68,7 @@ int* TopologicalSort::SortByOrder()
 	int* ordered = new int[_count];
 	int currentOrder = 0;
 	//While	has candidates to add
-	while (_candidates->GetCount() != 0)
+	while (_candidates->GetCount() > 0)
 	{
 		//Add candidate to ordered
 		int toAdd = _candidates->Pop();
@@ -76,13 +76,13 @@ int* TopologicalSort::SortByOrder()
 		currentOrder++;
 
 		//For each successor of added candidate decrement precursor count and add them to candidates if they have no precursors
-		TList<int>* successors = _links[toAdd];
+		TList<int>* successors = _links[toAdd-1];
 		int successorsCount = successors->GetCount();
 		for (int i = 0; i < successorsCount; i++)
 		{
 			int successor = successors->GetElement(i);
-			_precursors[successor]--;
-			if (_precursors[successor] == 0)
+			_precursors[successor-1]--;
+			if (_precursors[successor-1] == 0)
 			{
 				_candidates->Push(successor);
 			}
