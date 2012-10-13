@@ -92,6 +92,7 @@ int* TopologicalSort::SortByOrder()
 	//If can't order return NULL
 	if (currentOrder != _count)
 	{
+		delete ordered;
 		return NULL;
 	}
 

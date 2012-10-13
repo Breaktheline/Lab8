@@ -13,8 +13,12 @@ void Execute(FILE* inputFile = stdin)
 		Problem* problem = parser.ReadFromFile(inputFile);
 		int* result = topologicalSort.Sort(problem->count, problem->conditions);
 		parser.PrintResult(result, problem->count);
+
 		delete problem;
-		delete result;
+		if (result != NULL)
+		{
+			delete result;
+		}
 	}
 	catch (AppException e)
 	{

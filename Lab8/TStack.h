@@ -82,7 +82,7 @@ public:
 	{
 		if (_count == 0)
 		{
-			return NULL;
+			return -1;
 		}
 
 		T last = _elements[_count-1];
