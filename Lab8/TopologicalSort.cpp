@@ -2,60 +2,109 @@
 
 int* TopologicalSort::Sort(int count, TList<Condition>* conditions)
 {
-	int* precursors = new int[count];
-	for(int i = 0; i < count; i++)
-	{
-		precursors[i] = 0;
-	}
+	_count = count;
+	//Prepare data
+	CreatePrecursors();
+	CreateLinks();
+	FillLinksAndPrecursors(conditions);
+	AddFirstCandidates();
 
-	TList<int>** links = new TList<int>*[count];
-	for (int i = 0; i < count; i++)
-	{
-		links[i] = new TList<int>();
-	}
+	//Sort
+	int* ordered = SortByOrder();
 
+	//Delete extra data
+	DeleteArrays();
+
+	return ordered;
+}
+
+//Array has count of precursors for element i.
+void TopologicalSort::CreatePrecursors()
+{
+	_precursors = new int[_count];
+	for(int i = 0; i < _count; i++)
+	{
+		_precursors[i] = 0;
+	}
+}
+
+//Array of lists. For each i has list of successors.
+void TopologicalSort::CreateLinks()
+{
+	_links = new TList<int>*[_count];
+	for (int i = 0; i < _count; i++)
+	{
+		_links[i] = new TList<int>();
+	}
+}
+
+//Fill links and precursors using conditions.
+void TopologicalSort::FillLinksAndPrecursors( TList<Condition>* conditions )
+{
 	int conditionsCount = conditions->GetCount();
 	for (int i = 0; i < conditionsCount; i++)
 	{
 		Condition condition = conditions->GetElement(i);
-		links[condition.first]->Add(condition.second);
-		precursors[condition.second]++;
+		_links[condition.first]->Add(condition.second);
+		_precursors[condition.second]++;
 	}
+}
 
-	TStack<int>* candidates = new TStack<int>();
-	for (int i = 0; i < count; i++)
+//Add first candidates, which has no precursors.
+void TopologicalSort::AddFirstCandidates()
+{
+	_candidates = new TStack<int>();
+	for (int i = 0; i < _count; i++)
 	{
-		if (precursors[i] == 0)
+		if (_precursors[i] == 0)
 		{
-			candidates->Push(i);
+			_candidates->Push(i);
 		}
 	}
+}
 
-	int* ordered = new int[count];
+int* TopologicalSort::SortByOrder()
+{
+	int* ordered = new int[_count];
 	int currentOrder = 0;
-	while (candidates->GetCount() != 0)
+	//While	has candidates to add
+	while (_candidates->GetCount() != 0)
 	{
-		int toAdd = candidates->Pop();
+		//Add candidate to ordered
+		int toAdd = _candidates->Pop();
 		ordered[currentOrder] = toAdd;
 		currentOrder++;
 
-		TList<int>* successors = links[toAdd];
+		//For each successor of added candidate decrement precursor count and add them to candidates if they have no precursors
+		TList<int>* successors = _links[toAdd];
 		int successorsCount = successors->GetCount();
 		for (int i = 0; i < successorsCount; i++)
 		{
 			int successor = successors->GetElement(i);
-			precursors[successor]--;
-			if (precursors[successor] == 0)
+			_precursors[successor]--;
+			if (_precursors[successor] == 0)
 			{
-				candidates->Push(successor);
+				_candidates->Push(successor);
 			}
 		}
 	}
 
-	if (currentOrder != count)
+	//If can't order return NULL
+	if (currentOrder != _count)
 	{
 		return NULL;
 	}
 
 	return ordered;
+}
+
+void TopologicalSort::DeleteArrays()
+{
+	delete _precursors;
+	delete _candidates;
+	for (int i = 0; i < _count; i++)
+	{
+		delete _links[i];
+	}
+	delete _links;
 }
